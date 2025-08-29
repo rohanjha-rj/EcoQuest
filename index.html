@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EcoQuest - Turning Carbon to Coins</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(to right, #d4fc79, #96e6a1);
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #1b5e20;
+      color: #fff;
+      text-align: center;
+      padding: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    main {
+      padding: 1rem;
+      max-width: 1000px;
+      margin: auto;
+    }
+    h2 {
+      color: #1b5e20;
+    }
+    .card {
+      background: #fff;
+      padding: 1.2rem;
+      border-radius: 16px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+      margin: 1rem 0;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.01);
+    }
+    button {
+      margin: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 10px;
+      background: #43a047;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #2e7d32;
+    }
+    input {
+      padding: 0.5rem;
+      margin: 0.3rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .progress {
+      background: #ddd;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+      height: 24px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(to right, #43a047, #76ff03);
+      width: 0%;
+      text-align: center;
+      color: #fff;
+      font-weight: bold;
+    }
+    canvas {
+      max-width: 100%;
+    }
+    .leaderboard li {
+      list-style: none;
+      margin: 0.3rem 0;
+      padding: 0.5rem;
+      background: #e8f5e9;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    .leaderboard li.you {
+      background: #c8e6c9;
+      border: 2px solid #1b5e20;
+    }
+    .badge {
+      display: inline-block;
+      background: gold;
+      color: #000;
+      padding: 0.4rem 0.7rem;
+      border-radius: 14px;
+      margin: 0.3rem;
+      font-weight: bold;
+    }
+    .avatar {
+      font-size: 48px;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .streak {
+      font-size: 18px;
+      color: #ff5722;
+      font-weight: bold;
+    }
+    .quest {
+      background: #fff3cd;
+      padding: 0.7rem;
+      border-radius: 10px;
+      margin: 0.5rem 0;
+      border: 1px solid #ffeeba;
+    }
+    .achievement-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 0.5rem;
+      text-align: center;
+    }
+    .achievement {
+      font-size: 24px;
+      background: #f1f8e9;
+      border-radius: 12px;
+      padding: 0.6rem;
+    }
+    
+    /* New Styles for Progress Map and Shop */
+    .progress-map {
+      display: flex;
+      overflow-x: auto;
+      padding: 1rem 0;
+      gap: 1rem;
+    }
+    .location {
+      min-width: 100px;
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 12px;
+      background: #e8f5e9;
+      opacity: 0.5;
+      transition: all 0.3s;
+    }
+    .location.unlocked {
+      opacity: 1;
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .location-icon {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .shop-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 1rem;
+    }
+    .shop-item {
+      background: #f1f8e9;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .shop-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+    .shop-item.purchased {
+      background: #c8e6c9;
+      border: 2px solid #1b5e20;
+    }
+    .shop-item-cost {
+      font-weight: bold;
+      color: #2e7d32;
+    }
+    
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .close-modal {
+      float: right;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    
+    /* Dark mode */
+    body.dark-mode {
+      background: linear-gradient(to right, #1a2a3a, #2c3e50);
+      color: #f0f0f0;
+    }
+    body.dark-mode .card {
+      background: #2c3e50;
+      color: #f0f0f0;
+    }
+    body.dark-mode input {
+      background: #34495e;
+      color: #f0f0f0;
+      border-color: #16a085;
+    }
+
+    /* NEW STYLES FOR ADDED FEATURES */
+    .notification-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+    .notification {
+      background: white;
+      border-left: 5px solid #4caf50;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .activity-transport { border-left: 5px solid #2196F3; }
+    .activity-food { border-left: 5px solid #4CAF50; }
+    .activity-energy { border-left: 5px solid #FF9800; }
+    .activity-other { border-left: 5px solid #9C27B0; }
+    .saved-activities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 0.5rem 0;
+    }
+    .saved-activity {
+      background: #e8f5e9;
+      padding: 0.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .impact-visual {
+      height: 100px;
+      background: #e8f5e9;
+      border-radius: 12px;
+      margin: 1rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .tree {
+      position: absolute;
+      bottom: 0;
+      font-size: 24px;
+      transition: transform 0.5s;
+    }
+    .chat-box {
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      background: #f9f9f9;
+    }
+    .message {
+      margin: 0.3rem 0;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: #e8f5e9;
+    }
+    .message.you {
+      background: #c8e6c9;
+      text-align: right;
+    }
+    .badge-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .badge-item {
+      text-align: center;
+      padding: 0.5rem;
+      background: #f1f8e9;
+      border-radius: 12px;
+    }
+    .badge-item.locked {
+      filter: grayscale(1);
+      opacity: 0.6;
+    }
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0.5rem 0;
+    }
+    .community-goal {
+      background: #bbdefb;
+      padding: 1rem;
+      border-radius: 12px;
+      margin: 1rem 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌍 EcoQuest - Turning Carbon to Coins</h1>
+    <p>Turning your eco-actions into rewards!</p>
+    <button onclick="toggleDarkMode()">🌓 Toggle Dark/Light</button>
+    <button onclick="showNotification('Welcome to EcoQuest!', 'success')">Test Notification</button>
+    <button onclick="toggleSound()">🔊 Toggle Sound</button>
+  </header>
+  <main>
+    <!-- Avatar & Level -->
+    <div class="card" style="text-align:center;">
+      <h2>Your Avatar</h2>
+      <div id="avatar" class="avatar">🌱</div>
+      <p><b>Level:</b> <span id="level">1</span> | <b>XP:</b> <span id="xp">0</span></p>
+      <p class="streak">🔥 Streak: <span id="streak">0</span> days</p>
+      <button onclick="openShop()">🛒 Open Shop</button>
+      <button onclick="openBadgeGallery()">🏆 View Badges</button>
+    </div>
+
+    <!-- Activity Logging -->
+    <div class="card">
+      <h2>Log Activity</h2>
+      <div class="saved-activities" id="savedActivities">
+        <!-- Saved activities will appear here -->
+      </div>
+      <button onclick="logActivity('Car 10km', 2.4, 'transport')" class="activity-transport">🚗 Car 10km</button>
+      <button onclick="logActivity('Bus 10km', 0.8, 'transport')" class="activity-transport">🚌 Bus 10km</button>
+      <button onclick="logActivity('Veg Meal', 0.5, 'food')" class="activity-food">🥗 Veg Meal</button>
+      <button onclick="logActivity('Meat Meal', 2.0, 'food')" class="activity-food">🍖 Meat Meal</button>
+      <button onclick="logActivity('AC 2hrs', 1.2, 'energy')" class="activity-energy">❄️ AC 2 hrs</button>
+      <button onclick="logActivity('LED Bulb', -0.1, 'energy')" class="activity-energy">💡 LED Bulb</button>
+      <br><br>
+      <input type="text" id="customName" placeholder="Custom Activity">
+      <input type="number" id="customValue" placeholder="CO₂ kg">
+      <select id="customCategory">
+        <option value="transport">Transport</option>
+        <option value="food">Food</option>
+        <option value="energy">Energy</option>
+        <option value="other">Other</option>
+      </select>
+      <button onclick="addCustom()">Add</button>
+      <button onclick="saveCustomActivity()">💾 Save Activity</button>
+      <ul id="activityLog"></ul>
+    </div>
+
+    <!-- Dashboard -->
+    <div class="card">
+      <h2>Dashboard</h2>
+      <p><b>Total CO₂:</b> <span id="totalCO2">0</span> kg</p>
+      <p><b>Eco Points:</b> <span id="points">0</span></p>
+      <div class="progress">
+        <div id="progressBar" class="progress-bar">0%</div>
+      </div>
+      
+      <h3>Environmental Impact</h3>
+      <div class="impact-visual" id="impactVisual">
+        <!-- Trees will be added here based on eco points -->
+      </div>
+      
+      <canvas id="chart" height="150"></canvas>
+      <canvas id="pieChart" height="150"></canvas>
+      <div id="badges"></div>
+    </div>
+
+    <!-- Progress Map -->
+    <div class="card">
+      <h2>Eco Journey Map 🗺️</h2>
+      <p>Unlock new locations as you earn more eco-points!</p>
+      <div class="progress-map" id="progressMap">
+        <!-- Locations will be added dynamically -->
+      </div>
+    </div>
+
+    <!-- Daily Quest -->
+    <div class="card">
+      <h2>Daily Quest 🎯</h2>
+      <div id="questBox" class="quest">Log 2 Veg Meals today!</div>
+      <button onclick="completeQuest()">✅ Complete Quest</button>
+      
+      <h3>Weekly Challenge</h3>
+      <div id="weeklyChallenge" class="quest">Reduce 5kg CO₂ this week!</div>
+      <button onclick="checkWeeklyChallenge()">Check Progress</button>
+    </div>
+
+    <!-- Community Goal -->
+    <div class="card">
+      <h2>Community Goal 🌍</h2>
+      <div class="community-goal">
+        <h3>Plant 1000 Trees Together</h3>
+        <div class="progress">
+          <div id="communityProgress" class="progress-bar" style="width: 0%">0%</div>
+        </div>
+        <p>Global Progress: <span id="globalTrees">0</span>/1000 trees</p>
+      </div>
+      <button onclick="contributeToCommunityGoal()">Plant a Tree (10 pts)</button>
+    </div>
+
+    <!-- Achievements -->
+    <div class="card">
+      <h2>Achievements 🏆</h2>
+      <div class="achievement-grid" id="achievements">
+        <div class="achievement">❔</div>
+        <div class="achievement">❔</div>
+        <div class="achievement">❔</div>
+        <div class="achievement">❔</div>
+      </div>
+    </div>
+
+    <!-- Multiplayer -->
+    <div class="card">
+      <h2>Friends & Multiplayer 👥</h2>
+      <p><b>Your Invite Code:</b> <span id="inviteCode"></span></p>
+      <input type="text" id="friendCode" placeholder="Enter Friend Code">
+      <button onclick="addFriend()">➕ Add Friend</button>
+      
+      <h3>Chat with Friends</h3>
+      <div class="chat-box" id="chatBox">
+        <!-- Messages will appear here -->
+      </div>
+      <input type="text" id="messageInput" placeholder="Type your message...">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <!-- Leaderboard -->
+    <div class="card">
+      <h2>Leaderboard</h2>
+      <ul class="leaderboard" id="leaderboard"></ul>
+    </div>
+
+    <!-- Settings -->
+    <div class="card">
+      <h2>Settings ⚙️</h2>
+      <div class="settings-row">
+        <span>Sound Effects</span>
+        <label class="switch">
+          <input type="checkbox" id="soundToggle" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <span>Notifications</span>
+        <label class="switch">
+          <input type="checkbox" id="notificationsToggle" checked>
+          <span class="slider round"></span>
+        </label>
+      </div>
+      <button onclick="exportData()">📊 Export Data</button>
+      <button onclick="resetGame()">🔄 Reset Game</button>
+    </div>
+  </main>
+
+  <!-- Shop Modal -->
+  <div id="shopModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeShop()">&times;</span>
+      <h2>Eco Shop 🛒</h2>
+      <p>Your eco-points: <span id="shopPoints">0</span></p>
+      <div class="shop-items" id="shopItems">
+        <!-- Shop items will be added dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Badge Gallery Modal -->
+  <div id="badgeModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeBadgeGallery()">&times;</span>
+      <h2>Badge Gallery 🏆</h2>
+      <div class="badge-gallery" id="badgeGallery">
+        <!-- Badges will be added dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Container -->
+  <div class="notification-container" id="notificationContainer"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let totalCO2 = 0, points = 0, xp = 0, level = 1, streak = 0, lastLogDay = null;
+    let activities = [], dailyData = [], activityCategories = {transport: 0, food: 0, energy: 0, other: 0};
+    let questDone = false;
+    let friends = [
+      {name: "👩‍🦱 Alex", pts: 50},
+      {name: "🧑‍🦰 Sam", pts: 30}
+    ];
+    let inviteCode = Math.random().toString(36).substr(2,6).toUpperCase();
+    let avatarItems = [];
+    let locations = [
+      {name: "Seed Village", icon: "🌱", pointsRequired: 0, unlocked: true},
+      {name: "Green Valley", icon: "🌿", pointsRequired: 20, unlocked: false},
+      {name: "Solar City", icon: "☀️", pointsRequired: 40, unlocked: false},
+      {name: "Windy Hills", icon: "💨", pointsRequired: 60, unlocked: false},
+      {name: "Ocean Sanctuary", icon: "🌊", pointsRequired: 80, unlocked: false},
+      {name: "Eco Metropolis", icon: "🏙️", pointsRequired: 100, unlocked: false}
+    ];
+    let shopItems = [
+      {id: "hat", name: "Sun Hat", icon: "👒", cost: 20, purchased: false},
+      {id: "glasses", name: "Sunglasses", icon: "😎", cost: 30, purchased: false},
+      {id: "watercan", name: "Watering Can", icon: "🚰", cost: 40, purchased: false},
+      {id: "fancypot", name: "Fancy Pot", icon: "🏺", cost: 60, purchased: false}
+    ];
+    let savedActivities = [];
+    let weeklyChallenge = { target: 5, progress: 0, completed: false };
+    let communityGoal = 0;
+    let chatMessages = [];
+    let soundEnabled = true;
+    let notificationsEnabled = true;
+    let badges = [
+      { id: "first_activity", name: "First Step", icon: "👣", description: "Log your first activity", earned: false },
+      { id: "eco_friend", name: "Eco Friend", icon: "🤝", description: "Add your first friend", earned: false },
+      { id: "daily_streak", name: "Consistent", icon: "🔥", description: "3-day streak", earned: false },
+      { id: "veggie_lover", name: "Veggie Lover", icon: "🥦", description: "Log 5 veg meals", earned: false },
+      { id: "transport_saver", name: "Commuter", icon: "🚲", description: "Save 10kg CO₂ on transport", earned: false },
+      { id: "energy_saver", name: "Energy Saver", icon: "💡", description: "Save 5kg CO₂ on energy", earned: false },
+      { id: "level_5", name: "Growing", icon: "🌿", description: "Reach level 5", earned: false },
+      { id: "level_10", name: "Expert", icon: "🌳", description: "Reach level 10", earned: false },
+      { id: "shopaholic", name: "Shopaholic", icon: "🛒", description: "Buy your first item", earned: false },
+      { id: "challenge_master", name: "Challenger", icon: "🏆", description: "Complete a weekly challenge", earned: false }
+    ];
+
+    // Initialize the game
+    function initGame() {
+      document.getElementById("inviteCode").innerText = inviteCode;
+      renderProgressMap();
+      renderShopItems();
+      loadFromLocalStorage();
+      updateUI();
+      renderSavedActivities();
+      updateImpactVisual();
+      generateWeeklyChallenge();
+      loadCommunityGoal();
+      renderChatMessages();
+      renderBadgeGallery();
+      
+      // Check if sounds are enabled
+      const soundToggle = document.getElementById("soundToggle");
+      if (soundToggle) soundToggle.checked = soundEnabled;
+      
+      const notifToggle = document.getElementById("notificationsToggle");
+      if (notifToggle) notifToggle.checked = notificationsEnabled;
+    }
+
+    function logActivity(name, co2, category) {
+      // Play sound
+      playSound('ding');
+      
+      activities.push({name, co2, category, timestamp: new Date()});
+      totalCO2 += co2;
+      activityCategories[category] += co2;
+      
+      let earned = Math.max(0, 10 - co2);
+      points += earned;
+      xp += earned;
+      
+      // Update weekly challenge progress if CO2 is reduced (negative)
+      if (co2 < 0) {
+        weeklyChallenge.progress += Math.abs(co2);
+      }
+      
+      checkLevelUp();
+      updateStreak();
+      updateUI();
+      saveToLocalStorage();
+      
+      // Show notification
+      if (notificationsEnabled) {
+        const impact = co2 > 0 ? `added ${co2}kg` : `reduced ${Math.abs(co2)}kg`;
+        showNotification(`Logged: ${name} (${impact} CO₂)`, 'info');
+      }
+      
+      // Check badges
+      checkBadges();
+      
+      // Update charts
+      updateCharts();
+    }
+
+    function addCustom() {
+      let name = document.getElementById("customName").value;
+      let val = parseFloat(document.getElementById("customValue").value);
+      let category = document.getElementById("customCategory").value;
+      if(name && !isNaN(val)) {
+        logActivity(name, val, category);
+        document.getElementById("customName").value = "";
+        document.getElementById("customValue").value = "";
+      }
+    }
+
+    function saveCustomActivity() {
+      let name = document.getElementById("customName").value;
+      let val = parseFloat(document.getElementById("customValue").value);
+      let category = document.getElementById("customCategory").value;
+      
+      if(name && !isNaN(val)) {
+        savedActivities.push({name, val, category});
+        renderSavedActivities();
+        saveToLocalStorage();
+        showNotification('Activity saved!', 'success');
+      }
+    }
+
+    function renderSavedActivities() {
+      const container = document.getElementById("savedActivities");
+      container.innerHTML = "";
+      
+      savedActivities.forEach(activity => {
+        const button = document.createElement("button");
+        button.innerText = activity.name;
+        button.classList.add(`activity-${activity.category}`);
+        button.onclick = () => logActivity(activity.name, activity.val, activity.category);
+        container.appendChild(button);
+      });
+    }
+
+    function checkLevelUp() {
+      if(xp >= level*20) {
+        xp = 0;
+        level++;
+        playSound('levelup');
+        
+        // Avatar grows with level
+        if (level < 3) {
+          document.getElementById("avatar").innerText = "🌱";
+        } else if (level < 5) {
+          document.getElementById("avatar").innerText = "🌿";
+        } else if (level < 7) {
+          document.getElementById("avatar").innerText = "🪴";
+        } else {
+          document.getElementById("avatar").innerText = "🌳";
+        }
+        
+        if (notificationsEnabled) {
+          showNotification(`Level up! You're now level ${level}`, 'success');
+        }
+      }
+    }
+
+    function updateStreak() {
+      let today = new Date().toDateString();
+      if(today !== lastLogDay) {
+        streak++;
+        lastLogDay = today;
+        
+        // Check for streak badge
+        if (streak >= 3 && !badges.find(b => b.id === "daily_streak").earned) {
+          awardBadge("daily_streak");
+        }
+      }
+    }
+
+    function completeQuest() {
+      if(!questDone) {
+        points += 20;
+        xp += 20;
+        questDone = true;
+        document.getElementById("questBox").innerText = "✅ Quest Completed!";
+        updateUI();
+        saveToLocalStorage();
+        showNotification('Daily quest completed! +20 points', 'success');
+      }
+    }
+
+    function generateWeeklyChallenge() {
+      // Simple implementation - in a real game this would be more sophisticated
+      weeklyChallenge = {
+        target: 5 + Math.floor(level / 2),
+        progress: 0,
+        completed: false
+      };
+      
+      document.getElementById("weeklyChallenge").innerText = 
+        `Reduce ${weeklyChallenge.target}kg CO₂ this week!`;
+    }
+
+    function checkWeeklyChallenge() {
+      if (weeklyChallenge.progress >= weeklyChallenge.target && !weeklyChallenge.completed) {
+        weeklyChallenge.completed = true;
+        points += 50;
+        xp += 50;
+        showNotification('Weekly challenge completed! +50 points', 'success');
+        awardBadge("challenge_master");
+        updateUI();
+      } else if (weeklyChallenge.completed) {
+        showNotification('You already completed this weekly challenge!', 'info');
+      } else {
+        showNotification(`Progress: ${weeklyChallenge.progress.toFixed(1)}/${weeklyChallenge.target}kg CO₂ reduced`, 'info');
+      }
+    }
+
+    function contributeToCommunityGoal() {
+      if (points >= 10) {
+        points -= 10;
+        communityGoal += 1;
+        
+        // In a real application, this would be sent to a server
+        localStorage.setItem('ecoCommunityGoal', communityGoal);
+        
+        updateUI();
+        updateCommunityGoalDisplay();
+        showNotification('Thanks for planting a tree!', 'success');
+      } else {
+        showNotification('You need 10 points to plant a tree', 'error');
+      }
+    }
+
+    function loadCommunityGoal() {
+      const savedGoal = localStorage.getItem('ecoCommunityGoal');
+      if (savedGoal) {
+        communityGoal = parseInt(savedGoal);
+      }
+      updateCommunityGoalDisplay();
+    }
+
+    function updateCommunityGoalDisplay() {
+      const progress = Math.min(100, (communityGoal / 1000) * 100);
+      document.getElementById("communityProgress").style.width = `${progress}%`;
+      document.getElementById("communityProgress").innerText = `${Math.round(progress)}%`;
+      document.getElementById("globalTrees").innerText = communityGoal;
+    }
+
+    function sendMessage() {
+      const input = document.getElementById("messageInput");
+      const message = input.value.trim();
+      
+      if (message) {
+        chatMessages.push({
+          sender: "You",
+          text: message,
+          timestamp: new Date()
+        });
+        
+        renderChatMessages();
+        input.value = "";
+        saveToLocalStorage();
+        
+        // Simulate a reply after a delay
+        setTimeout(() => {
+          if (friends.length > 0) {
+            const friend = friends[Math.floor(Math.random() * friends.length)];
+            const replies = [
+              "Nice job on reducing your carbon footprint!",
+              "I just completed my daily quest!",
+              "This game is really motivating me to be more eco-friendly.",
+              "Let's compete to see who can get more points this week!",
+              "Have you checked out the new shop items?"
+            ];
+            
+            chatMessages.push({
+              sender: friend.name,
+              text: replies[Math.floor(Math.random() * replies.length)],
+              timestamp: new Date()
+            });
+            
+            renderChatMessages();
+            saveToLocalStorage();
+            
+            if (notificationsEnabled) {
+              showNotification(`New message from ${friend.name}`, 'info');
+            }
+          }
+        }, 2000);
+      }
+    }
+
+    function renderChatMessages() {
+      const chatBox = document.getElementById("chatBox");
+      chatBox.innerHTML = "";
+      
+      chatMessages.forEach(msg => {
+        const messageEl = document.createElement("div");
+        messageEl.classList.add("message");
+        if (msg.sender === "You") messageEl.classList.add("you");
+        
+        messageEl.innerHTML = `
+          <strong>${msg.sender}:</strong> ${msg.text}
+          <small>${new Date(msg.timestamp).toLocaleTimeString()}</small>
+        `;
+        
+        chatBox.appendChild(messageEl);
+      });
+      
+      // Scroll to bottom
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function updateUI() {
+      document.getElementById("totalCO2").innerText = totalCO2.toFixed(1);
+      document.getElementById("points").innerText = points;
+      document.getElementById("shopPoints").innerText = points;
+      document.getElementById("xp").innerText = xp;
+      document.getElementById("level").innerText = level;
+      document.getElementById("streak").innerText = streak;
+
+      // Progress bar
+      let percent = Math.min(100, (totalCO2/20)*100);
+      document.getElementById("progressBar").style.width = percent + "%";
+      document.getElementById("progressBar").innerText = Math.round(percent) + "%";
+
+      // Badges
+      let badgesEl = document.getElementById("badges");
+      badgesEl.innerHTML = "";
+      if(points >= 20) badgesEl.innerHTML += "<span class='badge'>🌱 Starter</span>";
+      if(points >= 50) badgesEl.innerHTML += "<span class='badge'>🌿 Hero</span>";
+      if(points >= 100) badgesEl.innerHTML += "<span class='badge'>🌍 Protector</span>";
+
+      // Achievements
+      let ach = document.getElementById("achievements");
+      ach.innerHTML = "";
+      if(points >= 10) ach.innerHTML += "<div class='achievement'>🥇</div>";
+      if(points >= 50) ach.innerHTML += "<div class='achievement'>🥈</div>";
+      if(points >= 100) ach.innerHTML += "<div class='achievement'>🏆</div>";
+
+      // Update progress map
+      updateProgressMap();
+      
+      updateLeaderboard();
+
+      // Update impact visual
+      updateImpactVisual();
+
+      // Chart update
+      dailyData.push(totalCO2);
+      chart.data.labels.push("Day " + dailyData.length);
+      chart.data.datasets[0].data = dailyData;
+      chart.update();
+      
+      // Update pie chart
+      updatePieChart();
+    }
+
+    function updateImpactVisual() {
+      const visual = document.getElementById("impactVisual");
+      visual.innerHTML = "";
+      
+      // Add trees based on points (1 tree per 20 points)
+      const treeCount = Math.floor(points / 20);
+      
+      for (let i = 0; i < treeCount; i++) {
+        const tree = document.createElement("div");
+        tree.classList.add("tree");
+        tree.innerText = "🌳";
+        tree.style.left = `${10 + (i * 90 / treeCount)}%`;
+        visual.appendChild(tree);
+      }
+    }
+
+    function updateLeaderboard() {
+      let lb = document.getElementById("leaderboard");
+      lb.innerHTML = `<li class="you">🌱 You - ${points} pts</li>`;
+      friends.forEach(f => {
+        lb.innerHTML += `<li>${f.name} - ${f.pts} pts</li>`;
+      });
+    }
+
+    function addFriend() {
+      let code = document.getElementById("friendCode").value.trim().toUpperCase();
+      if(code && code !== inviteCode) {
+        friends.push({name: "🤝 Friend " + code, pts: Math.floor(Math.random()*40)});
+        document.getElementById("friendCode").value = "";
+        updateLeaderboard();
+        saveToLocalStorage();
+        
+        // Check for friend badge
+        if (friends.length >= 1 && !badges.find(b => b.id === "eco_friend").earned) {
+          awardBadge("eco_friend");
+        }
+        
+        showNotification('Friend added!', 'success');
+      }
+    }
+
+    function renderProgressMap() {
+      const mapEl = document.getElementById("progressMap");
+      mapEl.innerHTML = "";
+      
+      locations.forEach(location => {
+        const locationEl = document.createElement("div");
+        locationEl.className = `location ${location.unlocked ? 'unlocked' : ''}`;
+        locationEl.innerHTML = `
+          <div class="location-icon">${location.icon}</div>
+          <div>${location.name}</div>
+          ${!location.unlocked ? `<small>${location.pointsRequired} pts</small>` : ''}
+        `;
+        mapEl.appendChild(locationEl);
+      });
+    }
+
+    function updateProgressMap() {
+      locations.forEach(location => {
+        if (points >= location.pointsRequired) {
+          location.unlocked = true;
+        }
+      });
+      
+      const locationEls = document.querySelectorAll('.location');
+      locationEls.forEach((el, index) => {
+        if (locations[index].unlocked) {
+          el.classList.add('unlocked');
+        } else {
+          el.classList.remove('unlocked');
+        }
+      });
+    }
+
+    function renderShopItems() {
+      const shopEl = document.getElementById("shopItems");
+      shopEl.innerHTML = "";
+      
+      shopItems.forEach(item => {
+        const itemEl = document.createElement("div");
+        itemEl.className = `shop-item ${item.purchased ? 'purchased' : ''}`;
+        itemEl.innerHTML = `
+          <div style="font-size: 2rem;">${item.icon}</div>
+          <div>${item.name}</div>
+          <div class="shop-item-cost">${item.cost} pts</div>
+        `;
+        
+        if (!item.purchased) {
+          itemEl.onclick = () => purchaseItem(item.id);
+        }
+        
+        shopEl.appendChild(itemEl);
+      });
+    }
+
+    function purchaseItem(itemId) {
+      const item = shopItems.find(i => i.id === itemId);
+      
+      if (item && !item.purchased && points >= item.cost) {
+        points -= item.cost;
+        item.purchased = true;
+        avatarItems.push(item);
+        
+        // Update avatar with the purchased item
+        updateAvatarAppearance();
+        
+        // Update UI
+        updateUI();
+        renderShopItems();
+        saveToLocalStorage();
+        playSound('purchase');
+        
+        // Check for shop badge
+        if (!badges.find(b => b.id === "shopaholic").earned) {
+          awardBadge("shopaholic");
+        }
+        
+        showNotification(`Purchased ${item.name}!`, 'success');
+      }
+    }
+
+    function updateAvatarAppearance() {
+      const avatarEl = document.getElementById("avatar");
+      let avatarHTML = "";
+      
+      // Base avatar based on level
+      if (level < 3) {
+        avatarHTML = "🌱";
+      } else if (level < 5) {
+        avatarHTML = "🌿";
+      } else if (level < 7) {
+        avatarHTML = "🪴";
+      } else {
+        avatarHTML = "🌳";
+      }
+      
+      // Add purchased items
+      avatarItems.forEach(item => {
+        avatarHTML += item.icon;
+      });
+      
+      avatarEl.innerHTML = avatarHTML;
+    }
+
+    function openShop() {
+      document.getElementById("shopModal").style.display = "flex";
+    }
+
+    function closeShop() {
+      document.getElementById("shopModal").style.display = "none";
+    }
+
+    function openBadgeGallery() {
+      renderBadgeGallery();
+      document.getElementById("badgeModal").style.display = "flex";
+    }
+
+    function closeBadgeGallery() {
+      document.getElementById("badgeModal").style.display = "none";
+    }
+
+    function renderBadgeGallery() {
+      const galleryEl = document.getElementById("badgeGallery");
+      galleryEl.innerHTML = "";
+      
+      badges.forEach(badge => {
+        const badgeEl = document.createElement("div");
+        badgeEl.classList.add("badge-item");
+        if (!badge.earned) badgeEl.classList.add("locked");
+        
+        badgeEl.innerHTML = `
+          <div style="font-size: 2rem;">${badge.icon}</div>
+          <div>${badge.name}</div>
+          ${!badge.earned ? `<small>Locked</small>` : `<small>${badge.description}</small>`}
+        `;
+        
+        galleryEl.appendChild(badgeEl);
+      });
+    }
+
+    function awardBadge(badgeId) {
+      const badge = badges.find(b => b.id === badgeId);
+      if (badge && !badge.earned) {
+        badge.earned = true;
+        showNotification(`Badge earned: ${badge.name}!`, 'success');
+        playSound('badge');
+        renderBadgeGallery();
+        saveToLocalStorage();
+      }
+    }
+
+    function checkBadges() {
+      // Check for first activity badge
+      if (activities.length > 0 && !badges.find(b => b.id === "first_activity").earned) {
+        awardBadge("first_activity");
+      }
+      
+      // Check for level badges
+      if (level >= 5 && !badges.find(b => b.id === "level_5").earned) {
+        awardBadge("level_5");
+      }
+      
+      if (level >= 10 && !badges.find(b => b.id === "level_10").earned) {
+        awardBadge("level_10");
+      }
+      
+      // Check for category-specific badges
+      const vegMeals = activities.filter(a => a.name === "Veg Meal").length;
+      if (vegMeals >= 5 && !badges.find(b => b.id === "veggie_lover").earned) {
+        awardBadge("veggie_lover");
+      }
+      
+      const transportSavings = activities
+        .filter(a => a.category === "transport" && a.co2 < 0)
+        .reduce((sum, a) => sum + Math.abs(a.co2), 0);
+      
+      if (transportSavings >= 10 && !badges.find(b => b.id === "transport_saver").earned) {
+        awardBadge("transport_saver");
+      }
+      
+      const energySavings = activities
+        .filter(a => a.category === "energy" && a.co2 < 0)
+        .reduce((sum, a) => sum + Math.abs(a.co2), 0);
+      
+      if (energySavings >= 5 && !badges.find(b => b.id === "energy_saver").earned) {
+        awardBadge("energy_saver");
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+      saveToLocalStorage();
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById("soundToggle").checked = soundEnabled;
+      saveToLocalStorage();
+      showNotification(`Sound ${soundEnabled ? 'enabled' : 'disabled'}`, 'info');
+    }
+
+    function toggleNotifications() {
+      notificationsEnabled = !notificationsEnabled;
+      document.getElementById("notificationsToggle").checked = notificationsEnabled;
+      saveToLocalStorage();
+      showNotification(`Notifications ${notificationsEnabled ? 'enabled' : 'disabled'}`, 'info');
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      
+      // In a real implementation, you would play actual sound files
+      console.log(`Playing ${type} sound`);
+    }
+
+    function showNotification(message, type = 'info') {
+      if (!notificationsEnabled) return;
+      
+      const notification = document.createElement("div");
+      notification.classList.add("notification");
+      if (type === 'error') notification.style.borderLeftColor = '#f44336';
+      if (type === 'success') notification.style.borderLeftColor = '#4caf50';
+      if (type === 'warning') notification.style.borderLeftColor = '#ff9800';
+      
+      notification.innerText = message;
+      
+      const container = document.getElementById("notificationContainer");
+      container.appendChild(notification);
+      
+      // Remove after 5 seconds
+      setTimeout(() => {
+        notification.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => {
+          container.removeChild(notification);
+        }, 300);
+      }, 5000);
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({
+        activities,
+        points,
+        level,
+        badges: badges.filter(b => b.earned)
+      }));
+      
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "ecochallenge_data.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      
+      showNotification('Data exported successfully!', 'success');
+    }
+
+    function resetGame() {
+      if (confirm("Are you sure you want to reset all game data? This cannot be undone.")) {
+        localStorage.removeItem("ecoChallengeData");
+        location.reload();
+      }
+    }
+
+    function updateCharts() {
+      // Update line chart
+      chart.data.labels = Array.from({length: dailyData.length}, (_, i) => `Day ${i+1}`);
+      chart.data.datasets[0].data = dailyData;
+      chart.update();
+      
+      // Update pie chart
+      updatePieChart();
+    }
+
+    function updatePieChart() {
+      pieChart.data.datasets[0].data = [
+        activityCategories.transport,
+        activityCategories.food,
+        activityCategories.energy,
+        activityCategories.other
+      ];
+      pieChart.update();
+    }
+
+    // Local storage functions
+    function saveToLocalStorage() {
+      const gameData = {
+        totalCO2,
+        points,
+        xp,
+        level,
+        streak,
+        lastLogDay,
+        activities,
+        dailyData,
+        activityCategories,
+        questDone,
+        friends,
+        avatarItems,
+        locations,
+        shopItems,
+        savedActivities,
+        weeklyChallenge,
+        chatMessages,
+        soundEnabled,
+        notificationsEnabled,
+        badges,
+        darkMode: document.body.classList.contains("dark-mode")
+      };
+      
+      localStorage.setItem("ecoChallengeData", JSON.stringify(gameData));
+    }
+
+    function loadFromLocalStorage() {
+      const savedData = localStorage.getItem("ecoChallengeData");
+      if (savedData) {
+        const gameData = JSON.parse(savedData);
+        
+        totalCO2 = gameData.totalCO2 || 0;
+        points = gameData.points || 0;
+        xp = gameData.xp || 0;
+        level = gameData.level || 1;
+        streak = gameData.streak || 0;
+        lastLogDay = gameData.lastLogDay || null;
+        activities = gameData.activities || [];
+        dailyData = gameData.dailyData || [];
+        activityCategories = gameData.activityCategories || {transport: 0, food: 0, energy: 0, other: 0};
+        questDone = gameData.questDone || false;
+        friends = gameData.friends || [
+          {name: "👩‍🦱 Alex", pts: 50},
+          {name: "🧑‍🦰 Sam", pts: 30}
+        ];
+        avatarItems = gameData.avatarItems || [];
+        locations = gameData.locations || locations;
+        shopItems = gameData.shopItems || shopItems;
+        savedActivities = gameData.savedActivities || [];
+        weeklyChallenge = gameData.weeklyChallenge || { target: 5, progress: 0, completed: false };
+        chatMessages = gameData.chatMessages || [];
+        soundEnabled = gameData.soundEnabled !== undefined ? gameData.soundEnabled : true;
+        notificationsEnabled = gameData.notificationsEnabled !== undefined ? gameData.notificationsEnabled : true;
+        badges = gameData.badges || badges;
+        
+        if (gameData.darkMode) {
+          document.body.classList.add("dark-mode");
+        }
+        
+        // Update avatar appearance with saved items
+        updateAvatarAppearance();
+        
+        // Check badges on load
+        checkBadges();
+      }
+    }
+
+    // Simulate friends earning points
+    setInterval(()=>{
+      friends.forEach(f => {
+        f.pts += Math.floor(Math.random()*5);
+      });
+      updateLeaderboard();
+    }, 5000);
+
+    // Chart.js setup
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Daily CO₂ (kg)',
+          data: [],
+          borderColor: '#1b5e20',
+          backgroundColor: "rgba(27,94,32,0.2)",
+          fill: true,
+          tension: 0.3
+        }]
+      }
+    });
+
+    // Pie chart for activity categories
+    const pieCtx = document.getElementById('pieChart').getContext('2d');
+    const pieChart = new Chart(pieCtx, {
+      type: 'pie',
+      data: {
+        labels: ['Transport', 'Food', 'Energy', 'Other'],
+        datasets: [{
+          data: [0, 0, 0, 0],
+          backgroundColor: [
+            '#2196F3',
+            '#4CAF50',
+            '#FF9800',
+            '#9C27B0'
+          ]
+        }]
+      }
+    });
+
+    // Initialize the game
+    initGame();
+  </script>
+</body>
+</html>
